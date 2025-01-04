@@ -50,11 +50,10 @@ void *echo(void *fd_ptr) {
   int received;
 
   recv(socket_fd, c_buffer, 1, 0);
-  printf("%c", c_buffer[0]);
+  send(socket_fd, c_buffer, 1, 0);
   fflush(stdout);
   while ((received = recv(socket_fd, c_buffer, 1, 0)) > 0) {
-    printf("%c", c_buffer[0]);
-    fflush(stdout);
+    send(socket_fd, c_buffer, 1, 0);
   }
   pthread_exit(NULL);
 }
@@ -66,18 +65,23 @@ int main(void) {
   struct addrinfo their_addr;
   int bytes_received;
   sockfd = server_init();
+  int i = -1;
+  pthread_t echo_threads[5];
 
   while (1) {
     new_fd = accept(sockfd, (struct sockaddr *)&their_addr, &addr_size);
-    int *fd_ptr = malloc(sizeof(int));
-    *fd_ptr = new_fd;
-    pthread_t thread_id;
-    pthread_create(&thread_id, NULL, echo, fd_ptr);
-    pthread_detach(thread_id);
+
     if (new_fd < 0) {
       printf("[-] connection failed");
       exit(-1);
     }
     printf("connection made \n");
+    int *fd_ptr = malloc(sizeof(int));
+    *fd_ptr = new_fd;
+    pthread_t thread_id;
+    echo_threads[i++] = thread_id;
+
+    pthread_create(&thread_id, NULL, echo, fd_ptr);
+    pthread_detach(thread_id);
   }
 }
