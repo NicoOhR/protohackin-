@@ -2,3 +2,7 @@ run:
   cmake build/
   make -C build 
   ./build/smoke_test
+
+debug:
+  cmake -DCMAKE_BUILD_TYPE=Debug -S . -B build/
+  gdb build/smoke_test
