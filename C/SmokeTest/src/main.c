@@ -10,7 +10,7 @@ int main(void) {
   int port = 5566;
   int server_socket, sockfd, new_fd, info_return, bind_return;
   socklen_t addr_size;
-  char buffer[124];
+  char c_buffer[1];
   struct addrinfo hints, *res, their_addr;
 
   addr_size = sizeof their_addr;
@@ -38,16 +38,22 @@ int main(void) {
   }
 
   listen(sockfd, 10);
+  int bytes_received;
 
   while (1) {
     new_fd = accept(sockfd, (struct sockaddr *)&their_addr, &addr_size);
+
     if (new_fd < 0) {
       printf("[-] connection failed");
       exit(-1);
     }
     printf("connection made \n");
 
-    recv(new_fd, buffer, 124, 0);
-    send(new_fd, buffer, 124, 0);
+    recv(new_fd, c_buffer, 1, 0);
+
+    while ((bytes_received = recv(new_fd, c_buffer, 1, 0)) > 0) {
+      printf("%c", c_buffer[0]);
+      fflush(stdout);
+    }
   }
 }
