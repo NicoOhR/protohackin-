@@ -5,7 +5,7 @@
 #include <string.h>
 #include <sys/socket.h>
 #include <sys/types.h>
-
+#include <unistd.h>
 #define PORT "5566"
 
 int server_init(void) {
@@ -54,6 +54,11 @@ void *echo(void *fd_ptr) {
   fflush(stdout);
   while ((received = recv(socket_fd, c_buffer, 1, 0)) > 0) {
     send(socket_fd, c_buffer, 1, 0);
+  }
+  int shutdown_status = close(socket_fd);
+  if (shutdown_status == 0) {
+    printf("closed connection on %d", socket_fd);
+    fflush(stdout);
   }
   pthread_exit(NULL);
 }
